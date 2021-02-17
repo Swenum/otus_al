@@ -1,0 +1,76 @@
+---
+- meta: end_play
+  when: (ansible_distribution != "CentOS" and ansible_distribution_major_version != "7")
+
+#- name: "List all known variables and facts"
+#  debug:
+#    var: hostvars[inventory_hostname]
+
+#- name: "List all known variables and facts to /tmp/dump"
+#  template:
+#    src: dump.j2
+#    dest: /tmp/dump
+
+- name: "Install epel-release"
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - epel-release
+
+- name: "Set timezone"
+  timezone:
+    name: "{{ ntp_timezone }}"
+
+- name: "Force timesync with chrony"
+  shell: "chronyc -a makestep"
+
+- name: "Install additional packages"
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - setools-console
+    - libsemanage-python
+    - python3
+    - python3-pip
+  
+    
+
+- name: "Upgrade pip"
+  pip: 
+    name: pip
+    state: latest
+    executable: pip3
+
+- name: "Upgrade pip locally"
+  become: false
+  local_action:
+    module: pip
+    name: pip
+    state: latest
+    executable: pip3
+
+- name: "Install python modules"
+  pip:
+    name: "{{ packages }}"
+    state: latest
+    executable: pip3
+  vars:
+    packages:
+    - "jinja2"
+
+- name: "Install python modules locally"
+  become: false
+  local_action:
+    module: pip
+    name: "{{ packages }}"
+    state: latest
+    executable: pip3
+  vars:
+    packages:
+    - "jinja2"
+
+...
