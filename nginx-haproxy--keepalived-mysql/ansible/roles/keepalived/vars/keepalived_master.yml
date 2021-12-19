@@ -1,0 +1,32 @@
+---
+keepalived_sync_groups:
+  # You can have multiple sync groups. Here is an example of just one.
+  haproxy:
+    # Each group can have muliple instances
+    instances:
+      - external
+      - internal
+    
+
+keepalived_instances:
+  #This dict name is the same as the one above, in keepalived_sync_groups.
+  external:
+    #remember you can use ansible variables here.
+    interface: eth1
+    state: MASTER
+    virtual_router_id: 10
+    priority: 100
+
+    vips:
+      - "{{ keepalived_external_vip_cidr | default('192.168.100.100') }} dev eth1"
+
+  internal:
+    interface: eth2
+    state: MASTER
+    virtual_router_id: 11
+    priority: 100
+
+    vips:
+      - "{{ keepalived_internal_vip_cidr | default('192.168.101.100') }} dev eth2"
+
+

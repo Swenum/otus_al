@@ -1,0 +1,61 @@
+Vagrant.configure("2") do |config|
+  #config.vm.box = "bento/centos-7.9"
+  config.vm.box = "Swenum/centos79"
+  #config.vm.box_version = "7.0"
+  
+  config.vm.provider "virtualbox" do |vb|
+      vb.memory = 4096
+      vb.cpus = 2
+	  vb.gui=false
+  end
+
+  config.vm.define "mysql" do |mysql|
+    mysql.vm.hostname = "mysql.local"
+    mysql.vm.provision :shell, :run => 'always', :path => "bootstrap.sh", :privileged => true
+	mysql.vm.network "public_network", ip: "192.168.100.176", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+	mysql.vm.network "public_network", ip: "192.168.101.176", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+  end
+  
+  config.vm.define "lb1" do |lb1|
+    lb1.vm.hostname = "lb1.local"
+    lb1.vm.provision :shell, :run => 'always', :path => "bootstrap.sh", :privileged => true
+    lb1.vm.network "public_network", ip: "192.168.100.171", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+	  lb1.vm.network "public_network", ip: "192.168.101.171", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+  end
+  
+  config.vm.define "lb2" do |lb2|
+    lb2.vm.hostname = "lb2.local"
+    lb2.vm.provision :shell, :run => 'always', :path => "bootstrap.sh", :privileged => true
+    lb2.vm.network "public_network", ip: "192.168.100.172", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+	  lb2.vm.network "public_network", ip: "192.168.101.172", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+  end
+  
+  config.vm.define "nginx1" do |nginx1|
+    nginx1.vm.hostname = "nginx1.local"
+    nginx1.vm.provision :shell, :run => 'always', :path => "bootstrap.sh", :privileged => true
+    nginx1.vm.network "public_network", ip: "192.168.100.173", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+    nginx1.vm.network "public_network", ip: "192.168.101.173", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+  end
+
+  config.vm.define "nginx2" do |nginx2|
+    nginx2.vm.hostname = "nginx2.local"
+    nginx2.vm.provision :shell, :run => 'always', :path => "bootstrap.sh", :privileged => true
+    nginx2.vm.network "public_network", ip: "192.168.100.174", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+    nginx2.vm.network "public_network", ip: "192.168.101.174", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+  end
+
+  config.vm.define "nginx3" do |nginx3|
+    nginx3.vm.hostname = "nginx3.local"
+    nginx3.vm.provision :shell, :run => 'always', :path => "bootstrap.sh", :privileged => true
+    nginx3.vm.network "public_network", ip: "192.168.100.175", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+    nginx3.vm.network "public_network", ip: "192.168.101.175", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+  end
+  
+  config.vm.define "ansible" do |ansible|
+    ansible.vm.hostname = "ansible.local"
+    ansible.vm.provision :shell, :run => 'always', :path => "bootstrap_ansible.sh", :privileged => true
+    ansible.vm.network "public_network", ip: "192.168.100.177", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+    ansible.vm.network "public_network", ip: "192.168.101.177", bridge: "Intel(R) Wireless-AC 9560 160MHz"
+  end
+  
+end

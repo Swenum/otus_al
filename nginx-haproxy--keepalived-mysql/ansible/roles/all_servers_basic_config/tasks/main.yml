@@ -1,0 +1,29 @@
+---
+- meta: end_play
+  when: (ansible_distribution != "CentOS" and ansible_distribution_major_version != "7")
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: Stop and disable Network Manager
+  systemd:
+    name: NetworkManager
+    enabled: no
+    state: stopped
+
+- name: Install epel-release
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - epel-release
+    - yum-utils
+    - nano
+    - mc
+
+- name: Set hostname
+  hostname: 
+    name: "{{ ansible_hostname }}.{{ domain }}"
+

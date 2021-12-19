@@ -1,0 +1,8 @@
+---
+
+ntp_timezone: "UTC"
+
+# NGINX
+path_to_nginx_config: "/etc/nginx/nginx.conf"
+
+...

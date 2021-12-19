@@ -1,0 +1,17 @@
+---
+
+- name: hosts prepare
+  tags: base
+  hosts: all
+  become: true
+  roles:
+    - base_config
+
+- name: nginx install
+  tags: nginx_install
+  hosts: all
+  become: true
+  roles:
+    - nginx_install
+    - nginx_site
+...

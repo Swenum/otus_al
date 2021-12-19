@@ -1,0 +1,41 @@
+- hosts: nginx1, nginx2, nginx3, lb1, lb2, mysql, ansible
+  become: true
+  tags: all
+  roles:
+    - { role: 'all_servers_basic_config' }
+  vars_files:
+    - ./vars.yml
+  
+- hosts: nginx1, nginx2, nginx3
+  become: true
+  tags: cluster
+  roles:
+    - { role: 'web_servers_config' }
+  vars_files:
+    - ./vars.yml
+
+- hosts: lb1
+  become: true
+  vars_files:
+    - roles/keepalived/vars/keepalived_master.yml
+  roles:  
+     - { role: 'keepalived' }
+
+- hosts: lb2
+  become: true
+  vars_files:
+    - roles/keepalived/vars/keepalived_backup.yml
+  roles:
+     - { role: 'keepalived' }
+  
+- hosts: lb1, lb2
+  become: true
+  vars_files:
+    - roles/haproxy/vars/main.yml
+  roles:
+     - { role: 'haproxy' }
+
+- hosts: mysql
+  become: true
+  roles:
+     - { role: 'db_servers_config' }

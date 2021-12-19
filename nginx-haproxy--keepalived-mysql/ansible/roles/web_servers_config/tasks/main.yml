@@ -1,0 +1,111 @@
+---
+- meta: end_play
+  when: (ansible_distribution != "CentOS" and ansible_distribution_major_version != "7")
+
+- name: Add Remi7 PHP-repository for Centos7
+  yum:
+    name: http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+    state: present
+
+- name: Enable Remi7 repository
+  lineinfile:
+    path: /etc/yum.repos.d/remi-php74.repo
+    regexp: '^enabled='
+    firstmatch: yes
+    line: enabled=1
+
+- name: Install required packages for WEB servers
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - keepalived
+    - nginx
+    - php
+    - php-fpm
+    - php-mysql
+    - php-mysqlnd
+    - php-gd
+    - php-intl
+    - php-mbstring
+    - php-soap
+    - php-xml
+    - php-xmlrpc
+    - php-zip
+    - php-common
+    - php-opcache
+    - php-mcrypt
+    - php-cli
+    - php-gd
+    - php-curl
+  notify: Enable and restart php-fpm
+- name: Check file archive existence
+  stat: 
+    path: /tmp/latest.tar.gz
+  register: get_wordpress
+  ignore_errors: True
+   
+- get_url:
+       url="https://wordpress.org/latest.tar.gz"
+       dest="/tmp/latest.tar.gz"
+ 
+  when: not get_wordpress.stat.exists
+- debug: 
+       msg="Wordpress was downloaded"
+  when: not get_wordpress.stat.exists
+
+
+- name: Unpack Wordpress
+  unarchive:
+    src: https://wordpress.org/latest.tar.gz
+    dest: /usr/share/nginx/html
+    remote_src: yes
+  when: not get_wordpress.stat.exists
+    
+- name: Insert configured wp-config.php
+  copy:
+    src: wp-config.php
+    dest: /usr/share/nginx/html/wordpress/wp-config.php
+  
+  
+- name: Set owner for Wordpress directory
+  file:
+    path: /usr/share/nginx/html/wordpress
+    owner: nginx
+    group: nginx
+    state: directory
+    recurse: yes
+    mode: 0755
+- name: Set owner for Wordpress directory
+  file:
+    path: /var/log/nginx
+    owner: nginx
+    group: nginx
+    state: directory
+    recurse: yes
+    mode: 0755
+
+- name: Backup default nginx.comf
+  copy:
+    src: /etc/nginx/nginx.conf
+    dest: /etc/nginx/nginx.conf.orig
+    remote_src: yes
+  
+- name: Delete default nginx.conf
+  file:
+    path: /etc/nginx/nginx.conf
+    state: absent
+
+- name: Insert configured nginx.conf
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+  notify: Enable and restart Nginx
+
+- name: Restart NGINX for apply new nginx.conf
+  systemd:
+    name: nginx
+    state: restarted
+
+

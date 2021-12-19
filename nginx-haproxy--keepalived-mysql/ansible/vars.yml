@@ -1,0 +1,3 @@
+domain: "domain.local"
+ntp_timezone: "UTC"
+remote_host: '%'
